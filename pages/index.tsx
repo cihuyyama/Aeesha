@@ -4,6 +4,7 @@ import Head from "next/head";
 import LandingPageTemplate from "../templates/LandingPage/LandingPageTemplate";
 import React, { useState } from "react";
 import axios, { AxiosResponse } from "axios";
+import TypingAnimation from "@/components/TypingAnimation";
 
 const Index: NextPage = () => {
   const [inputValue, setInputValue] = useState("");
@@ -105,6 +106,14 @@ const Index: NextPage = () => {
                   </div>
                 </div>
               ))}
+              {
+              isLoading &&
+              <div key={chatlog.length} className="flex justify-start">
+                  <div className="bg-gray-800 rounded-lg p-4 text-white max-w-sm">
+                    <TypingAnimation />
+                  </div>
+              </div>
+            }
             </div>
           </div>
           <form onSubmit={handleSubmit} className="flex-none p-6">
