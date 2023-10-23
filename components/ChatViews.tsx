@@ -1,14 +1,26 @@
 import { OpenAIChatResponse } from "@/model/resModel";
 import axios, { AxiosResponse } from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TypingAnimation from "./TypingAnimation";
-import { FaPaperPlane} from 'react-icons/fa'
+import { FaPaperPlane } from "react-icons/fa";
+import SelectTotalPeople, { frameworks } from "./SelectTotalPeople";
+import SelectMainFocus, { framework } from "./SelectMainFocus";
 
 const ChatViews = () => {
   const [inputValue, setInputValue] = useState("");
-  const [chatlog, setChatlog] = useState<{ type: string; message: string }[]>(
-    [{type: 'bot', message: 'Halo saya adalah Aeesha bot AutoSPBE AI,\n Silahkan bertanya dan izinkan saya membantu menjawab pertanyaan anda😊'}]
-  );
+  const [valuePeople, setValuePeople] = useState("");
+  const [valueFocus, setValueFocus] = useState("");
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [isSelecting2, setIsSelecting2] = useState(false);
+  const [chatlog, setChatlog] = useState<
+    { type: string; message: string | JSX.Element }[]
+  >([
+    {
+      type: "bot",
+      message:
+        "Halo saya adalah AutoSPBE,\n Kami dapat membantu anda membuat Masterplan Smart City. Apa nama Kota anda ?",
+    },
+  ]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -19,10 +31,67 @@ const ChatViews = () => {
       { type: "user", message: inputValue },
     ]);
 
-    sendMessage(inputValue);
+    if (inputValue.toLowerCase().includes("bantul")) {
+      setChatlog((prevChatLog) => [
+        ...prevChatLog,
+        {
+          type: "bot",
+          message:
+            "Berapa jumlah penduduk bantul ?",
+        },
+      ]);
+      setIsSelecting(true);
+    } else {
+      sendMessage(inputValue);
+    }
 
     setInputValue("");
   };
+
+  useEffect(() => {
+    if (valuePeople) {
+      setIsSelecting(false)
+      setChatlog((prevChatLog) => [
+        ...prevChatLog,
+        {
+          type: "user",
+          message: `${
+            valuePeople
+              ? frameworks.find((framework) => framework.value === valuePeople)
+                  ?.label
+              : "Pilih jumlah penduduk"
+          }`,
+        },
+      ]);
+      setChatlog((prevChatLog) => [
+        ...prevChatLog,
+        {
+          type: "bot",
+          message: "Apa fokus utama smart city di kota bantul ?",
+        },
+      ]);
+      setIsSelecting2(true)
+    }
+  }, [valuePeople]);
+
+  useEffect(()=>{
+    if (valueFocus) {
+      setChatlog((prevChatLog) => [
+        ...prevChatLog,
+        {
+          type: "user",
+          message: `${
+            valueFocus
+              ? framework.find((framework) => framework.value === valueFocus)
+                  ?.label
+              : "Pilih fokus utama"
+          }`,
+        },
+      ]);
+      setIsSelecting2(false)
+    }
+  }, [valueFocus])
+  
 
   const sendMessage = async (message: string) => {
     try {
@@ -31,7 +100,7 @@ const ChatViews = () => {
       const url = `${
         process.env.NODE_ENV === "development" ? "http://localhost:5000" : ""
       }/api/chat/load`;
-      const openaiURL = 'https://api.openai.com/v1/chat/completions'
+      const openaiURL = "https://api.openai.com/v1/chat/completions";
       const data = {
         model: "gpt-3.5-turbo",
         messages: [
@@ -45,17 +114,17 @@ const ChatViews = () => {
         "Content-type": "application/json",
         Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPEN_API_KEY}`,
       };
-
       const res: AxiosResponse<OpenAIChatResponse> = await axios.post(
         openaiURL,
         data,
-        {headers: headers}
+        { headers: headers }
       );
       setChatlog((prevChatLog) => [
         ...prevChatLog,
         { type: "bot", message: res.data.choices[0].message.content },
       ]);
       console.log(res);
+
       setIsLoading(false);
     } catch (error) {
       console.error(error);
@@ -65,13 +134,14 @@ const ChatViews = () => {
 
   return (
     <div className="mx-auto my-auto min-h-screen bg-white ">
-      <div className="container mx-auto max-w-[700px] border-x-4 border-gray-300">
-        <div className="flex flex-col min-h-screen bg-[url(https://i.pinimg.com/564x/ca/d7/6d/cad76d75091745f0636572ff0cc027ad.jpg)] ">
+      <div className="container mx-auto max-w-[700px]">
+        <div className="flex flex-col min-h-screen bg-[url(https://i.pinimg.com/564x/ca/d7/6d/cad76d75091745f0636572ff0cc027ad.jpg)] border-x-4 border-gray-300 ">
           <div className="max-h-[300px] my-2 mx-2 bg-lime-600">
-          <h1 className="text-white text-transparent bg-clip-text text-center py-3 font-bold text-base">
-            AutoSPBE AI<br/>
-            Aplikasi Pembuatan Master Plan Smart City Otomatis V.0.1
-          </h1>
+            <h1 className="text-white text-transparent bg-clip-text text-center py-3 font-bold text-base">
+              AutoSPBE AI
+              <br />
+              Aplikasi Pembuatan Master Plan Smart City Otomatis V.0.1
+            </h1>
           </div>
           <div className="flex-grow p-6">
             <div className="flex flex-col space-y-4">
@@ -87,7 +157,7 @@ const ChatViews = () => {
                       message.type === "user" ? "bg-lime-400" : "bg-lime-100"
                     } rounded-lg p-4 text-black max-w-xl `}
                   >
-                    {`${message.message}`}
+                    {message.message}
                   </div>
                 </div>
               ))}
@@ -98,6 +168,22 @@ const ChatViews = () => {
                   </div>
                 </div>
               )}
+              {isSelecting && (
+                <div className="flex justify-end">
+                  <SelectTotalPeople
+                    myVar={valuePeople}
+                    setMyVar={setValuePeople}
+                  />
+                </div>
+              )}
+              {isSelecting2 ? (
+                <div className="flex justify-end">
+                  <SelectMainFocus
+                    myVar={valueFocus}
+                    setMyVar={setValueFocus}
+                  />
+                </div>
+              ): <></>}
             </div>
           </div>
           <form onSubmit={handleSubmit} className="flex-none p-6">
