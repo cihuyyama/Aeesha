@@ -7,7 +7,7 @@ import { FaPaperPlane} from 'react-icons/fa'
 const ChatViews = () => {
   const [inputValue, setInputValue] = useState("");
   const [chatlog, setChatlog] = useState<{ type: string; message: string }[]>(
-    [{type: 'bot', message: 'Halo saya adalah bot Aeesha,\n Silahkan bertanya dan izinkan saya membantu menjawab pertanyaan anda'}]
+    [{type: 'bot', message: 'Halo saya adalah Aeesha bot AutoSPBE AI,\n Silahkan bertanya dan izinkan saya membantu menjawab pertanyaan anda😊'}]
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -65,8 +65,8 @@ const ChatViews = () => {
 
   return (
     <div className="mx-auto my-auto min-h-screen bg-white ">
-      <div className="container mx-auto max-w-[700px] border-x-4 border-lime-700">
-        <div className="flex flex-col min-h-screen bg-white ">
+      <div className="container mx-auto max-w-[700px] border-x-4 border-gray-300">
+        <div className="flex flex-col min-h-screen bg-[url(https://i.pinimg.com/564x/ca/d7/6d/cad76d75091745f0636572ff0cc027ad.jpg)] ">
           <div className="max-h-[300px] my-2 mx-2 bg-lime-600">
           <h1 className="text-white text-transparent bg-clip-text text-center py-3 font-bold text-base">
             AutoSPBE AI<br/>
@@ -101,7 +101,7 @@ const ChatViews = () => {
             </div>
           </div>
           <form onSubmit={handleSubmit} className="flex-none p-6">
-            <div className="flex rounded-lg border border-gray-700 ">
+            <div className="flex rounded-lg bg-white ">
               <input
                 className="flex-grow px-4 py-2 bg-transparent text-black focus:outline-none"
                 type="text"
