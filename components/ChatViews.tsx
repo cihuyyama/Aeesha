@@ -2,9 +2,11 @@ import { OpenAIChatResponse } from "@/model/resModel";
 import axios, { AxiosResponse } from "axios";
 import React, { useEffect, useState } from "react";
 import TypingAnimation from "./TypingAnimation";
-import { FaPaperPlane } from "react-icons/fa";
+import { FaPaperPlane, FaFileDownload } from "react-icons/fa";
 import SelectTotalPeople, { frameworks } from "./SelectTotalPeople";
 import SelectMainFocus, { framework } from "./SelectMainFocus";
+import jsPDF from "jspdf";
+import { Button } from "./ui/button";
 
 const ChatViews = () => {
   const [inputValue, setInputValue] = useState("");
@@ -12,6 +14,7 @@ const ChatViews = () => {
   const [valueFocus, setValueFocus] = useState("");
   const [isSelecting, setIsSelecting] = useState(false);
   const [isSelecting2, setIsSelecting2] = useState(false);
+  const [city, setCity] = useState("");
   const [chatlog, setChatlog] = useState<
     { type: string; message: string | JSX.Element }[]
   >([
@@ -32,12 +35,12 @@ const ChatViews = () => {
     ]);
 
     if (inputValue.toLowerCase().includes("bantul")) {
+      setCity("bantul");
       setChatlog((prevChatLog) => [
         ...prevChatLog,
         {
           type: "bot",
-          message:
-            "Berapa jumlah penduduk bantul ?",
+          message: "Berapa jumlah penduduk bantul ?",
         },
       ]);
       setIsSelecting(true);
@@ -50,7 +53,7 @@ const ChatViews = () => {
 
   useEffect(() => {
     if (valuePeople) {
-      setIsSelecting(false)
+      setIsSelecting(false);
       setChatlog((prevChatLog) => [
         ...prevChatLog,
         {
@@ -70,11 +73,11 @@ const ChatViews = () => {
           message: "Apa fokus utama smart city di kota bantul ?",
         },
       ]);
-      setIsSelecting2(true)
+      setIsSelecting2(true);
     }
   }, [valuePeople]);
 
-  useEffect(()=>{
+  useEffect(() => {
     if (valueFocus) {
       setChatlog((prevChatLog) => [
         ...prevChatLog,
@@ -88,10 +91,29 @@ const ChatViews = () => {
           }`,
         },
       ]);
-      setIsSelecting2(false)
+      setIsSelecting2(false);
     }
-  }, [valueFocus])
-  
+  }, [valueFocus]);
+
+  useEffect(() => {
+    if (valueFocus && valuePeople) {
+      setChatlog((prevChatLog) => [
+        ...prevChatLog,
+        {
+          type: "bot",
+          message: `Silahkan unduh file PDF dibawah ini`,
+        },
+      ]);
+      setIsSelecting2(false);
+    }
+  }, [valueFocus, valuePeople]);
+
+  const generatePdf = () => {
+    const doc = new jsPDF();
+    doc.text(`${framework.find((framework) => framework.value === valueFocus)?.label} dikota ${city}`, 10, 10);
+    doc.save(`${framework.find((framework) => framework.value === valueFocus)?.label} dikota ${city}`)
+    doc.output("dataurlnewwindow");
+  };
 
   const sendMessage = async (message: string) => {
     try {
@@ -183,7 +205,19 @@ const ChatViews = () => {
                     setMyVar={setValueFocus}
                   />
                 </div>
-              ): <></>}
+              ) : (
+                <></>
+              )}
+              {valueFocus && valuePeople ? (
+                <div className="flex justify-start">
+                  <Button onClick={generatePdf} className=" bg-lime-100 text-black hover:text-white">
+                    {`${framework.find((framework) => framework.value === valueFocus)?.label} di kota ${city}.pdf`}
+                    <FaFileDownload className="ml-2 h-4 w-4 shrink-0" />
+                  </Button>
+                </div>
+              ) : (
+                <></>
+              )}
             </div>
           </div>
           <form onSubmit={handleSubmit} className="flex-none p-6">
