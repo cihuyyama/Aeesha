@@ -156,7 +156,7 @@ const ChatViews = () => {
 
   return (
     <div className="mx-auto my-auto min-h-screen bg-white ">
-      <div className="container mx-auto max-w-[700px]">
+      <div className=" mx-auto max-w-[700px]">
         <div className="flex flex-col min-h-screen bg-[url(https://i.pinimg.com/564x/ca/d7/6d/cad76d75091745f0636572ff0cc027ad.jpg)] border-x-4 border-gray-300 ">
           <div className="max-h-[300px] my-2 mx-2 bg-lime-600">
             <h1 className="text-white text-transparent bg-clip-text text-center py-3 font-bold text-base">
